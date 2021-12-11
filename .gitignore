@@ -50,3 +50,9 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Visual Studio Code user files
+.vscode/
+
+# Backup files (I'm looking at you Emacs)
+*~

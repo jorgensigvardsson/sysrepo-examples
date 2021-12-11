@@ -1,0 +1,18 @@
+module set-get-config {
+    namespace "urn:redbox:set_get_config";
+    prefix ov;
+
+    revision 2021-12-10 {
+        description "Initial revision.";
+    }
+
+    container config {
+        description "Configuration container.";
+
+        leaf config-value {
+            description "A configuration value.";
+            type uint32;
+            default 0;
+        }
+    }
+}
