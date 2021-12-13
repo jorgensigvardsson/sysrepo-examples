@@ -12,22 +12,22 @@ int main()
 {
     atexit(cleanup);
     
-    srand(clock());
-    
     sr_log_stderr(SR_LL_WRN); // Shove warnings and above onto stderr
 
     SR_TRY(sr_connect(SR_CONN_DEFAULT, &conn));
-    SR_TRY(sr_session_start(conn, SR_DS_RUNNING, &session));
+    SR_TRY(sr_session_start(conn, SR_DS_OPERATIONAL, &session)); // We need to read from the operational store, because it is the combination of ALL config + state!
 
-    sr_val_t new_config_value = { 0 };
-    new_config_value.type = SR_UINT32_T;
-    new_config_value.data.uint32_val = rand() % 100;
+    // Go through all values in the module and print them
+    size_t val_count;
+    sr_val_t* vals;
+    SR_TRY(sr_get_items(session, "/state:*//.", 0, 0, &vals, &val_count));
 
-    // Set item
-    SR_TRY(sr_set_item(session, "/observer:config/config-value", &new_config_value, SR_EDIT_DEFAULT));
+    for (size_t i = 0; i < val_count; ++i) {
+        print_val(&vals[i], 1, 0);
+        puts("");
+    }
 
-    // Commit changes in the current session!
-    SR_TRY(sr_apply_changes(session, 0, 0));
+    sr_free_values(vals, val_count);
 
     return 0;
 }

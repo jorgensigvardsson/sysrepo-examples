@@ -16,7 +16,7 @@ int main()
     SR_TRY(sr_connect(SR_CONN_DEFAULT, &conn));
     SR_TRY(sr_session_start(conn, SR_DS_RUNNING, &session));
 
-    sr_val_t new_config_value;
+    sr_val_t new_config_value = { 0 };
     new_config_value.type = SR_UINT32_T;
 
     sr_val_t* config_value = NULL;

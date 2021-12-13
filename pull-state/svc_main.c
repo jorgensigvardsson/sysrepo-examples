@@ -8,8 +8,8 @@
 
 static void cleanup();
 static void sigint_handler(int);
-static int get_items(sr_session_ctx_t *session, const char *module_name, const char *path,
-                     const char *request_xpath, uint32_t request_id, struct lyd_node **parent, void *private_data);
+static int provide_state(sr_session_ctx_t *session, const char *module_name, const char *path,
+                         const char *request_xpath, uint32_t request_id, struct lyd_node **parent, void *private_data);
 
 sr_conn_ctx_t* conn = NULL;
 sr_session_ctx_t* session = NULL;
@@ -28,7 +28,7 @@ int main()
 
     // Listen for changes
     sr_subscription_ctx_t *subscription = NULL;
-    SR_TRY(sr_oper_get_items_subscribe(session, "state", "/state:s", get_items, NULL, 0, &subscription));
+    SR_TRY(sr_oper_get_items_subscribe(session, "state", "/state:s", provide_state, NULL, 0, &subscription));
 
     signal(SIGINT, sigint_handler);
 
@@ -61,8 +61,8 @@ static void sigint_handler(int sig)
     exit_application = 1;
 }
 
-static int get_items(sr_session_ctx_t *session, const char *module_name, const char *path,
-                     const char *request_xpath, uint32_t request_id, struct lyd_node **parent, void *private_data)
+static int provide_state(sr_session_ctx_t *session, const char *module_name, const char *path,
+                         const char *request_xpath, uint32_t request_id, struct lyd_node **parent, void *private_data)
 {
     if (!strcmp(module_name, "state") && !strcmp(path, "/state:s")) {
         char buf[10] = { 0 };
