@@ -1,0 +1,24 @@
+module rpc {
+    namespace "urn:redbox:rpc";
+    prefix ov;
+
+    revision 2021-12-10 {
+        description "Initial revision.";
+    }
+
+    rpc reboot {
+        description "Reboots device.";
+
+        input {
+            leaf when-from-now {
+                type uint32;
+            }
+        }
+
+        output {
+            leaf ack {
+                type string;
+            }
+        }
+    }
+}

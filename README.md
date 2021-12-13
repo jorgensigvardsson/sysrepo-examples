@@ -172,3 +172,33 @@ What is demonstrated in this example is the following aspects:
 - State can be _pushed_ from a service to the operational store, and then independently be read from the store by a client
 - The push model operatores on the _operational_ data store, and the client pulls from the same _operational_ datastore.
 
+
+## rpc
+Illustrates how a service can provide RPC functionality through sysrepo. Used to expose operations through sysrepo (and NETCONF by extension).
+
+The example has a very simple YANG module definition that defines a single RPC method named `reboot`. It expects an input parameter, specifying a relative time when the system will reboot, expressed in seconds from when the RPC is handled. The response is a string, acknowledging the operation. The `service` registers an RPC callback that will be called by sysrepo, when `client` executes the RPC.
+
+### Running
+Install the YANG module by
+```sh
+$ make install-yang
+```
+
+Build by
+```sh
+$ make
+```
+
+Run service as
+```sh
+$ ./service
+```
+
+Run the client to execute the RPC
+```sh
+$ ./client
+```
+
+### Demonstrated aspects
+What is demonstrated in this example is the following aspects:
+- RPC can be used to execute operations that cannot (easily and/or succinctly) be represented using configuration or state changes
