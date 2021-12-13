@@ -1,0 +1,19 @@
+module state {
+    namespace "urn:redbox:state";
+    prefix ov;
+
+    revision 2021-12-10 {
+        description "Initial revision.";
+    }
+
+    container status {
+        description "Status container.";
+        config false; // This makes this container a status container rather than a configuration container!
+
+        leaf value {
+            description "A status value.";
+            type uint32;
+            default 0;
+        }
+    }
+}

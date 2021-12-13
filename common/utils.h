@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sysrepo.h>
+#include <inttypes.h>
 
 #define SR_TRY(x) \
     do {\
