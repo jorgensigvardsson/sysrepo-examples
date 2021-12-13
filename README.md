@@ -1,4 +1,8 @@
 # Sysrepo design choices/questions
+## Caveat Emptor
+
+I have used sysrepo as distributed by Ubuntu 21.10. This version (`1.4.70`) is a lot older than the currently released version which is 2.0.53 (as of 2021-12-13). The examples on the master branch on https://github.com/sysrepo/sysrepo uses an API that is not consistent with the version on Ubuntu. If you want to run the examples in this repository, you may need to have a look at the examples in the offical sysrepo repository, and adjust the code accordingly. The API changes aren't huge, so there shouldn't be any issues. The examples affected by the API difference have been documented as such. 
+
 ## Direct or indirect integration?
 
 As the diagram in https://netopeer.liberouter.org/doc/sysrepo/master/html/ illustrates, there are two major approaches to integrate applications with sysrepo:
