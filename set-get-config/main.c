@@ -45,7 +45,8 @@ int main()
     SR_TRY(sr_get_items(session, "/set-get-config:*//.", 0, 0, &vals, &val_count));
 
     for (size_t i = 0; i < val_count; ++i) {
-        print_val(&vals[i]);
+        print_val(&vals[i], 1, 0);
+        puts("");
     }
 
     sr_free_values(vals, val_count);

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sysrepo.h>
+#include <time.h>
 #include "utils.h"
 
 static void cleanup();
@@ -10,7 +11,9 @@ sr_session_ctx_t* session = NULL;
 int main()
 {
     atexit(cleanup);
-
+    
+    srand(clock());
+    
     sr_log_stderr(SR_LL_WRN); // Shove warnings and above onto stderr
 
     SR_TRY(sr_connect(SR_CONN_DEFAULT, &conn));

@@ -27,91 +27,115 @@ void panic(const char* msg, ...)
     exit(-1);
 }
 
-
-static void print_val(const sr_val_t *value)
+static int sprint_val(char* buf, int buf_len, const sr_val_t* value, int print_path, int print_values_only)
 {
-    if (NULL == value) {
-        return;
+    const char* orig_buf = buf;
+    if (NULL == value)
+        goto finished;
+
+    int len = 0;
+    if (print_path) {
+        len = snprintf(buf, buf_len, "%s ", value->xpath);
+        buf_len -= len;
+        buf += len;
     }
-
-    printf("%s ", value->xpath);
-
+    
+    
+#define EQ_VAL(x) (print_values_only ? (x) : ("= " x))
     switch (value->type) {
     case SR_CONTAINER_T:
     case SR_CONTAINER_PRESENCE_T:
-        printf("(container)");
+        len = snprintf(buf, buf_len, "(container)");
         break;
     case SR_LIST_T:
-        printf("(list instance)");
+        len = snprintf(buf, buf_len, "(list instance)");
         break;
     case SR_STRING_T:
-        printf("= %s", value->data.string_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%s"), value->data.string_val);
         break;
     case SR_BOOL_T:
-        printf("= %s", value->data.bool_val ? "true" : "false");
+        len = snprintf(buf, buf_len, EQ_VAL("%s"), value->data.bool_val ? "true" : "false");
         break;
     case SR_DECIMAL64_T:
-        printf("= %g", value->data.decimal64_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%g"), value->data.decimal64_val);
         break;
     case SR_INT8_T:
-        printf("= %" PRId8, value->data.int8_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%" PRId8), value->data.int8_val);
         break;
     case SR_INT16_T:
-        printf("= %" PRId16, value->data.int16_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%" PRId16), value->data.int16_val);
         break;
     case SR_INT32_T:
-        printf("= %" PRId32, value->data.int32_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%" PRId32), value->data.int32_val);
         break;
     case SR_INT64_T:
-        printf("= %" PRId64, value->data.int64_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%" PRId64), value->data.int64_val);
         break;
     case SR_UINT8_T:
-        printf("= %" PRIu8, value->data.uint8_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%" PRIu8), value->data.uint8_val);
         break;
     case SR_UINT16_T:
-        printf("= %" PRIu16, value->data.uint16_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%" PRIu16), value->data.uint16_val);
         break;
     case SR_UINT32_T:
-        printf("= %" PRIu32, value->data.uint32_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%" PRIu32), value->data.uint32_val);
         break;
     case SR_UINT64_T:
-        printf("= %" PRIu64, value->data.uint64_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%" PRIu64), value->data.uint64_val);
         break;
     case SR_IDENTITYREF_T:
-        printf("= %s", value->data.identityref_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%s"), value->data.identityref_val);
         break;
     case SR_INSTANCEID_T:
-        printf("= %s", value->data.instanceid_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%s"), value->data.instanceid_val);
         break;
     case SR_BITS_T:
-        printf("= %s", value->data.bits_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%s"), value->data.bits_val);
         break;
     case SR_BINARY_T:
-        printf("= %s", value->data.binary_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%s"), value->data.binary_val);
         break;
     case SR_ENUM_T:
-        printf("= %s", value->data.enum_val);
+        len = snprintf(buf, buf_len, EQ_VAL("%s"), value->data.enum_val);
         break;
     case SR_LEAF_EMPTY_T:
-        printf("(empty leaf)");
+        len = snprintf(buf, buf_len, "(empty leaf)");
         break;
     default:
-        printf("(unprintable)");
+        len = snprintf(buf, buf_len, "(unprintable)");
         break;
     }
 
-    switch (value->type) {
-    case SR_UNKNOWN_T:
-    case SR_CONTAINER_T:
-    case SR_CONTAINER_PRESENCE_T:
-    case SR_LIST_T:
-    case SR_LEAF_EMPTY_T:
-        printf("\n");
-        break;
-    default:
-        printf("%s\n", value->dflt ? " [default]" : "");
-        break;
+    buf += len;
+    buf_len -= len;
+
+    if (!print_values_only) {
+        switch (value->type) {
+        case SR_UNKNOWN_T:
+        case SR_CONTAINER_T:
+        case SR_CONTAINER_PRESENCE_T:
+        case SR_LIST_T:
+        case SR_LEAF_EMPTY_T:
+            break;
+        default:
+            len = snprintf(buf, buf_len, "%s", value->dflt ? " [default]" : "");
+            break;
+        }
+
+        buf += len;
+        buf_len -= len;
     }
+
+finished:    
+    return buf - orig_buf;
+}
+
+static void print_val(const sr_val_t *value, int print_path, int print_values_only)
+{
+    char buf[100] = { 0 };
+
+    sprint_val(buf, sizeof(buf), value, print_path, print_values_only);
+    printf("%s", buf);
 }
 
 #endif /* __UTILS_H__ */

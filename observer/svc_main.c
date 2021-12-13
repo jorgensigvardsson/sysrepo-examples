@@ -51,17 +51,17 @@ print_change(sr_change_oper_t op, sr_val_t *old_val, sr_val_t *new_val)
     switch (op) {
     case SR_OP_CREATED:
         printf("CREATED: ");
-        print_val(new_val);
+        print_val(new_val, 1, 1);
         break;
     case SR_OP_DELETED:
         printf("DELETED: ");
-        print_val(old_val);
+        print_val(old_val, 1, 1);
         break;
     case SR_OP_MODIFIED:
         printf("MODIFIED: ");
-        print_val(old_val);
-        printf("to ");
-        print_val(new_val);
+        print_val(old_val, 1, 1);
+        printf(" to ");
+        print_val(new_val, 0, 1);
         break;
     case SR_OP_MOVED:
         printf("MOVED: %s\n", new_val->xpath);
@@ -87,7 +87,9 @@ print_current_config(sr_session_ctx_t *session, const char *module_name)
     }
 
     for (size_t i = 0; i < count; i++) {
-        print_val(&values[i]);
+        printf("   ");
+        print_val(&values[i], 1, 0);
+        puts("");
     }
     sr_free_values(values, count);
 
@@ -118,7 +120,7 @@ static int subscribe_cb(sr_session_ctx_t *session, const char *module_name, cons
     sr_val_t *old_value = NULL;
     sr_val_t *new_value = NULL;
 
-    printf("\n\n ========== EVENT %s CHANGES: ====================================\n\n", ev_to_str(event));
+    printf("\n\n========== EVENT %s START =====================================\n\n", ev_to_str(event));
 
     if (xpath) {
         sprintf(path, "%s//.", xpath);
@@ -131,18 +133,21 @@ static int subscribe_cb(sr_session_ctx_t *session, const char *module_name, cons
     }
 
     while ((rc = sr_get_change_next(session, it, &oper, &old_value, &new_value)) == SR_ERR_OK) {
+        printf("   ");
         print_change(oper, old_value, new_value);
+        puts("");
         sr_free_val(old_value);
         sr_free_val(new_value);
     }
 
-    printf("\n ========== END OF CHANGES =======================================");
+    printf("\n========== EVENT %s END =====================================", ev_to_str(event));
 
     if (event == SR_EV_DONE) {
-        printf("\n\n ========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========\n\n");
+        printf("\n\n========== CONFIG HAS CHANGED, RUNNING CONFIG START ==========\n\n");
         if (print_current_config(session, module_name) != SR_ERR_OK) {
             goto cleanup;
         }
+        printf("\n\n========== CONFIG HAS CHANGED, RUNNING CONFIG END ==========\n\n");
     }
 
 cleanup:
