@@ -7,11 +7,11 @@
 #include <sysrepo.h>
 #include <inttypes.h>
 
-#define SR_TRY(x) \
-    do {\
-        int rc__; \
-        rc__ = (x); \
-        if (rc__ != SR_ERR_OK) \
+#define SR_TRY(x)                                             \
+    do {                                                      \
+        int rc__;                                             \
+        rc__ = (x);                                           \
+        if (rc__ != SR_ERR_OK)                                \
             panic("PANIC: %s returned error %d\n", #x, rc__); \
     } while(0)
 
@@ -20,9 +20,7 @@ void panic(const char* msg, ...)
 {
     va_list va;
     va_start(va, msg);
-
     vfprintf(stderr, msg, va);
-
     va_end(va);
 
     exit(-1);
