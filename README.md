@@ -17,14 +17,29 @@ Should it turn out that direct approach isn't feasible for some reason, the `sys
 ### Push vs pull
 Configuration values, as well as any changes to the configuration, is normally pulled from the _running datastore_ by applications and services. State (values that are not a result of a configuration, e.g. _temperature_) is handled a bit differently. State is either _pushed_ or _pulled_ by the state provider (the application/service). The choice of which method to use does not have to be set in stone, and should be considered on a case by case basis. When a state provider offers state using the pull model, it basically means that a callback is called in the state provider asking for the state. In the push model, the application updates the state when needed in sysrepo, and state readers may fetch the latest state at any time.
 
-![The pull model](img/pull-model.png)*The pull model*
+<div>
+<img src="img/pull-model.png">
+<br/>
+<span style="font-style: italic">The pull model</span>
 
+<p>In the pull model, requests originate from the outside world (via NETCONF, CLI, or any other client). The request is intercepted in sysrepo via its API. Sysrepo notices that there is no value in the operational datastore for the yang module, and will see if there is a pull callback registered for the requested value(s). The pull callback is found and called. The result from the callback is then returned to the sysrepo API caller, and will be returned as a response to the request originator.</p>
+</div>
+
+<div>
+<img src="img/push-model.png">
+<br/>
+<span style="font-style: italic">The push model</span>
+
+<p>In the push model, requests originate from the outside world (via NETCONF, CLI, or any other client). The request is intercepted in sysrepo via its API, and is grounded there. Any value found in the operational datastore is returned immediately. If no value has been recorded, default values (according to YANG model) is returned. The app that is responsible for providing state values can update sysrepo at any time. The last updated value is returned to all requests from the outside world.</p>
+</div>
 
 ### Warning: resource leaks
 Sysrepo uses shared memory to operate. Such memory is not automatically reclaimed when a process terminates. It is therefore _vital_ that all sysrepo resources are released on process termination. All signals that can be handled and that terminates the process must release the sysrepo resources before allowing the process to terminate. The use of `atexit()` is also encouraged so that normal program termination is not forgotten.
 
-# sysrepo-examples
-Some examples highlighting the core concepts in sysrepo
+<hr/>
+
+# Repo source code
+The repo source code contains examples that highlight the core concepts in sysrepo.
 
 ## Preparations
 Make sure you have installed sysrepo. On Ubuntu, run
@@ -156,3 +171,4 @@ $ ./client
 What is demonstrated in this example is the following aspects:
 - State can be _pushed_ from a service to the operational store, and then independently be read from the store by a client
 - The push model operatores on the _operational_ data store, and the client pulls from the same _operational_ datastore.
+
