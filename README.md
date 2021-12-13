@@ -1,3 +1,28 @@
+# Sysrepo design choices/questions
+## Direct or indirect integration?
+
+As the diagram in https://netopeer.liberouter.org/doc/sysrepo/master/html/ illustrates, there are two major approaches to integrate applications with sysrepo:
+
+![Sysrepo integration approaches](https://netopeer.liberouter.org/doc/sysrepo/master/html/sr_apps.png)
+- Direct approach - modify application and link against libsysrepo (and possibly libyang)
+- Indirect approach - write a separate application that handles configuration only, and bridge to existing application using configuration files and signals for configuration reload
+
+The linked page refers to a third approach, and that is to utilize the `sysrepo-plugind` daemon. That is however just a _variation_ of the indirect approach. From an application developer's (us) perspective, the question is "do we want to modify existing applications or not?".
+
+If we can afford it, we should go for the direct approach as the memory pressure will be as low as possible. There's also already an abstraction layer for configuration in WeOS, so the needed modifications for a direct integration should only affect the configuration layer, and not the applications themselves.
+
+Should it turn out that direct approach isn't feasible for some reason, the `sysrepo-plugind` is the better choice. It would only add _one_ more process to the system, as opposed to _n_ new processes.
+
+## Application/service process considerations
+### Push vs pull
+Configuration values, as well as any changes to the configuration, is normally pulled from the _running datastore_ by applications and services. State (values that are not a result of a configuration, e.g. _temperature_) is handled a bit differently. State is either _pushed_ or _pulled_ by the state provider (the application/service). The choice of which method to use does not have to be set in stone, and should be considered on a case by case basis. When a state provider offers state using the pull model, it basically means that a callback is called in the state provider asking for the state. In the push model, the application updates the state when needed in sysrepo, and state readers may fetch the latest state at any time.
+
+![The pull model](img/pull-model.png)*The pull model*
+
+
+### Warning: resource leaks
+Sysrepo uses shared memory to operate. Such memory is not automatically reclaimed when a process terminates. It is therefore _vital_ that all sysrepo resources are released on process termination. All signals that can be handled and that terminates the process must release the sysrepo resources before allowing the process to terminate. The use of `atexit()` is also encouraged so that normal program termination is not forgotten.
+
 # sysrepo-examples
 Some examples highlighting the core concepts in sysrepo
 
