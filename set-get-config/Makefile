@@ -3,7 +3,7 @@ CC=gcc
 LD=gcc
 CFLAGS=-g -Wall -Wextra -std=c11 -I../common
 LDFLAGS=-lsysrepo
-TARGET=set_get_config
+TARGET=set-get-config
 
 build: $(OBJS)
 	$(LD) -o $(TARGET) $(OBJS) $(LDFLAGS)
