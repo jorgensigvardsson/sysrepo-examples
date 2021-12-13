@@ -104,6 +104,7 @@ static int sprint_val(char* buf, int buf_len, const sr_val_t* value, int print_p
         len = snprintf(buf, buf_len, "(unprintable)");
         break;
     }
+#undef EQ_VAL
 
     buf += len;
     buf_len -= len;
